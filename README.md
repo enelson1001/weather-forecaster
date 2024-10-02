@@ -168,7 +168,7 @@ I liked that the case can be either wall-mounted or includes bracket to allow it
 ## Pictures of Aliexpress ESP32S3 running the app
 ## Video Weather Forecaster App - development board installed in case.
 
-https://github.com/user-attachments/assets/c3700de9-bfa1-4c5c-8fe7-5f85276c9ba6
+https://github.com/user-attachments/assets/6d375cd7-2de2-4e6f-a32f-bb5f4e7c7c11
 
 ## The Home pane
 ![esp32s3-home](photos/home.jpg)
