@@ -1,0 +1,69 @@
+[package]
+name = "weather-forecaster"
+version = "0.1.0"
+authors = ["ed"]
+edition = "2021"
+resolver = "2"
+rust-version = "1.77"
+
+[profile.release]
+opt-level = "s"
+
+[profile.dev]
+debug = true    # Symbols are nice and they don't increase the size on Flash
+opt-level = "z"
+
+[features]
+default = ["std", "embassy", "esp-idf-svc/native"]
+
+pio = ["esp-idf-svc/pio"]
+std = ["alloc", "esp-idf-svc/binstart", "esp-idf-svc/std"]
+alloc = ["esp-idf-svc/alloc"]
+nightly = ["esp-idf-svc/nightly"]
+experimental = ["esp-idf-svc/experimental"]
+embassy = ["esp-idf-svc/embassy-sync", "esp-idf-svc/critical-section", "esp-idf-svc/embassy-time-driver"]
+
+[dependencies]
+log = { version = "0.4", default-features = false }
+
+esp-idf-svc = { version = "0.49.1", default-features = false }
+
+cstr_core = "0.2.1"
+embedded-graphics-core = "0.4.0"
+
+lvgl = { version = "0.6.2", default-features = false, features = [
+    "embedded_graphics",
+    "unsafe_no_autoinit",
+    #"lvgl_alloc",
+    #"alloc"
+] }
+
+lvgl-sys = { version = "0.6.2" }
+
+embedded-hal = { version = "1.0.0" }
+embedded-svc = "0.28"
+
+anyhow = "1.0"
+serde = { version = "1.0.195", features = ["derive"] }
+serde_json = "1.0"
+
+chrono = "0.4.31"
+chrono-tz = { version = "0.6.2", features = [ "filter-by-regex" ] }
+
+embedded-sdmmc = "0.7.0"
+heapless = "0.8.0"
+
+
+[build-dependencies]
+embuild = "0.32.0"
+
+
+[patch.crates-io]
+lvgl = { git = "https://github.com/enelson1001/lv_binding_rust" }
+lvgl-sys = { git = "https://github.com/enelson1001/lv_binding_rust" }
+
+
+
+[[bin]]
+name = "weather-forecaster"
+harness = false

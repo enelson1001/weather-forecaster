@@ -1,0 +1,37 @@
+[build]
+target = "xtensa-esp32s3-espidf"
+
+[target.xtensa-esp32s3-espidf]
+linker = "ldproxy"
+# runner = "espflash --monitor" # Select this runner for espflash v1.x.x
+runner = "espflash flash --monitor" # Select this runner for espflash v2.x.x
+rustflags = [
+    # Extending time_t for ESP IDF 5: https://github.com/esp-rs/rust/issues/110
+    "--cfg",
+    "espidf_time64",
+]
+
+[unstable]
+build-std = ["std", "panic_abort"]
+
+[env]
+MCU="esp32s3"
+
+# Note: this variable is not used by the pio builder (`cargo build --features pio`)
+ESP_IDF_VERSION = "v5.2.2"
+
+# The directory that has the lvgl config files - lv_conf.h, lv_drv_conf.h
+DEP_LV_CONFIG_PATH = { relative = true, value = "lvgl-configs" }
+
+# Required to make lvgl build correctly otherwise get wrong file type (ie compiled for a big endian system and target is little endian)
+CROSS_COMPILE = "xtensa-esp32s3-elf"
+
+# Required for lvgl otherwise the build would fail with the error -> dangerous relocation: call8: call target out of range
+# for some lvgl functions
+CFLAGS_xtensa_esp32s3_espidf="-mlongcalls"
+
+# Directory for custom fonts (written in C) that Lvgl can use
+LVGL_FONTS_DIR = {relative = true, value = "custom-fonts"}
+
+# Filter timezones so only US get installed
+CHRONO_TZ_TIMEZONE_FILTER="(US/.*)"

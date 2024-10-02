@@ -1,0 +1,4 @@
+Los Angeles,CA,90079,US/Pacific
+Denver,CO,80264,US/Mountain
+Chicago,IL,60614,US/Central
+New York,NY,10001,US/Eastern
