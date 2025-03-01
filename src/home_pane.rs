@@ -58,39 +58,39 @@ impl<'a> HomePane<'a> {
             title.set_width(163);
             title.set_align(Align::TopMid, 0, 5);
             let mut text = CString::new("").unwrap();
-            title.set_text(text.as_c_str()).unwrap();
+            title.set_text(text.as_c_str());
             title.add_style(Part::Main, Box::leak(city_title_style()));
 
             // city local time title
             let mut label = Label::create(&mut city_pane).unwrap();
             label.set_align(Align::TopMid, 0, 53);
             text = CString::new("Local Time").unwrap();
-            label.set_text(text.as_c_str()).unwrap();
+            label.set_text(text.as_c_str());
 
             // city local time
             let mut time = Label::create(&mut city_pane).unwrap();
             time.set_align(Align::TopMid, 0, 66);
             text = CString::new("").unwrap();
-            time.set_text(text.as_c_str()).unwrap();
+            time.set_text(text.as_c_str());
             time.add_style(Part::Main, Box::leak(time_style()));
 
             // city local date
             let mut date = Label::create(&mut city_pane).unwrap();
             date.set_align(Align::TopMid, 0, 93);
             text = CString::new("").unwrap();
-            date.set_text(text.as_c_str()).unwrap();
+            date.set_text(text.as_c_str());
 
             // city - local weather title label
             label = Label::create(&mut city_pane).unwrap();
             label.set_align(Align::TopMid, 0, 125);
             text = CString::new("Local Weather").unwrap();
-            label.set_text(text.as_c_str()).unwrap();
+            label.set_text(text.as_c_str());
 
             // city - local temperature
             let mut temp = Label::create(&mut city_pane).unwrap();
             temp.set_align(Align::TopMid, 0, 136);
             text = CString::new("").unwrap();
-            temp.set_text(text.as_c_str()).unwrap();
+            temp.set_text(text.as_c_str());
             temp.add_style(Part::Main, Box::leak(temperature_style()));
 
             // city - weather description label, wrap text for long descriptions
@@ -98,142 +98,142 @@ impl<'a> HomePane<'a> {
             weather_descr.set_width(150);
             weather_descr.set_align(Align::TopMid, 0, 170);
             let text = CString::new("").unwrap();
-            weather_descr.set_text(text.as_c_str()).unwrap();
+            weather_descr.set_text(text.as_c_str());
             weather_descr.add_style(Part::Main, Box::leak(font_12_red_style()));
 
             // city - uv title label
             label = Label::create(&mut city_pane).unwrap();
             label.set_align(Align::Center, -55, 25);
             let text = CString::new("UV").unwrap();
-            label.set_text(text.as_c_str()).unwrap();
+            label.set_text(text.as_c_str());
 
             // city - uv
             let mut uv = Label::create(&mut city_pane).unwrap();
             uv.set_align(Align::Center, -55, 43);
             uv.set_width(40);
             let text = CString::new("").unwrap();
-            uv.set_text(text.as_c_str()).unwrap();
+            uv.set_text(text.as_c_str());
             uv.add_style(Part::Main, Box::leak(color_scale_style()));
 
             // city - feels like title label
             label = Label::create(&mut city_pane).unwrap();
             label.set_align(Align::Center, 0, 25);
             let text = CString::new("Feels Like").unwrap();
-            label.set_text(text.as_c_str()).unwrap();
+            label.set_text(text.as_c_str());
 
             // city - feels like temperature
             let mut feels_like = Label::create(&mut city_pane).unwrap();
             feels_like.set_align(Align::Center, 0, 43);
             let text = CString::new("").unwrap();
-            feels_like.set_text(text.as_c_str()).unwrap();
+            feels_like.set_text(text.as_c_str());
             feels_like.add_style(Part::Main, Box::leak(font_14_blu_style()));
 
             // city - air quality index title label
             label = Label::create(&mut city_pane).unwrap();
             label.set_align(Align::Center, 55, 25);
             let text = CString::new("AQI").unwrap();
-            label.set_text(text.as_c_str()).unwrap();
+            label.set_text(text.as_c_str());
 
             // city - air quality index
             let mut aqi = Label::create(&mut city_pane).unwrap();
             aqi.set_align(Align::Center, 55, 43);
             aqi.set_width(40);
             let text = CString::new("").unwrap();
-            aqi.set_text(text.as_c_str()).unwrap();
+            aqi.set_text(text.as_c_str());
             aqi.add_style(Part::Main, Box::leak(color_scale_style()));
 
             // city - wind speed title label
             label = Label::create(&mut city_pane).unwrap();
             label.set_align(Align::Center, -55, 65);
             let text = CString::new("Wind").unwrap();
-            label.set_text(text.as_c_str()).unwrap();
+            label.set_text(text.as_c_str());
 
             // city - wind speed
             let mut wind_speed = Label::create(&mut city_pane).unwrap();
             wind_speed.set_align(Align::Center, -55, 80);
             let text = CString::new("").unwrap();
-            wind_speed.set_text(text.as_c_str()).unwrap();
+            wind_speed.set_text(text.as_c_str());
             wind_speed.add_style(Part::Main, Box::leak(font_14_blu_style()));
 
             // city - wind gust title label
             label = Label::create(&mut city_pane).unwrap();
             label.set_align(Align::Center, 0, 65);
             let text = CString::new("Gust").unwrap();
-            label.set_text(text.as_c_str()).unwrap();
+            label.set_text(text.as_c_str());
 
             // city - wind gust
             let mut wind_gust = Label::create(&mut city_pane).unwrap();
             wind_gust.set_align(Align::Center, 0, 80);
             let text = CString::new("").unwrap();
-            wind_gust.set_text(text.as_c_str()).unwrap();
+            wind_gust.set_text(text.as_c_str());
             wind_gust.add_style(Part::Main, Box::leak(font_14_blu_style()));
 
             // city - wind direction title label
             label = Label::create(&mut city_pane).unwrap();
             label.set_align(Align::Center, 55, 65);
             let text = CString::new("Dir").unwrap();
-            label.set_text(text.as_c_str()).unwrap();
+            label.set_text(text.as_c_str());
 
             // city - wind direction
             let mut wind_dir = Label::create(&mut city_pane).unwrap();
             wind_dir.set_align(Align::Center, 55, 80);
             let text = CString::new("").unwrap();
-            wind_dir.set_text(text.as_c_str()).unwrap();
+            wind_dir.set_text(text.as_c_str());
             wind_dir.add_style(Part::Main, Box::leak(font_12_blu_style()));
 
             // city - local weather forecast title label
             label = Label::create(&mut city_pane).unwrap();
             label.set_align(Align::Center, 0, 105);
             let text = CString::new("Local Weather Forecast").unwrap();
-            label.set_text(text.as_c_str()).unwrap();
+            label.set_text(text.as_c_str());
 
             // city forecast day 1 name title label
             let mut title_forecast_day_1 = Label::create(&mut city_pane).unwrap();
             title_forecast_day_1.set_align(Align::Center, -60, 120);
             let text = CString::new("").unwrap();
-            title_forecast_day_1.set_text(text.as_c_str()).unwrap();
+            title_forecast_day_1.set_text(text.as_c_str());
             title_forecast_day_1.add_style(Part::Main, Box::leak(font_12_red_style()));
 
             // city forecast day 1
             let mut forecast_day_1 = Label::create(&mut city_pane).unwrap();
             forecast_day_1.set_align(Align::Center, -60, 145);
             let text = CString::new("").unwrap();
-            forecast_day_1.set_text(text.as_c_str()).unwrap();
+            forecast_day_1.set_text(text.as_c_str());
             forecast_day_1.add_style(Part::Main, Box::leak(font_12_blu_style()));
 
             // city forecast day 2 name title label
             let mut title_forecast_day_2 = Label::create(&mut city_pane).unwrap();
             title_forecast_day_2.set_align(Align::Center, 0, 120);
             let text = CString::new("").unwrap();
-            title_forecast_day_2.set_text(text.as_c_str()).unwrap();
+            title_forecast_day_2.set_text(text.as_c_str());
             title_forecast_day_2.add_style(Part::Main, Box::leak(font_12_red_style()));
 
             // city forecast day 2
             let mut forecast_day_2 = Label::create(&mut city_pane).unwrap();
             forecast_day_2.set_align(Align::Center, 0, 145);
             let text = CString::new("").unwrap();
-            forecast_day_2.set_text(text.as_c_str()).unwrap();
+            forecast_day_2.set_text(text.as_c_str());
             forecast_day_2.add_style(Part::Main, Box::leak(font_12_blu_style()));
 
             // city forecast day 3 name title label
             let mut title_forecast_day_3 = Label::create(&mut city_pane).unwrap();
             title_forecast_day_3.set_align(Align::Center, 60, 120);
             let text = CString::new("").unwrap();
-            title_forecast_day_3.set_text(text.as_c_str()).unwrap();
+            title_forecast_day_3.set_text(text.as_c_str());
             title_forecast_day_3.add_style(Part::Main, Box::leak(font_12_red_style()));
 
             // city forecast day 3
             let mut forecast_day_3 = Label::create(&mut city_pane).unwrap();
             forecast_day_3.set_align(Align::Center, 60, 145);
             let text = CString::new("").unwrap();
-            forecast_day_3.set_text(text.as_c_str()).unwrap();
+            forecast_day_3.set_text(text.as_c_str());
             forecast_day_3.add_style(Part::Main, Box::leak(font_12_blu_style()));
 
             // city last updated
             let mut last_update = Label::create(&mut city_pane).unwrap();
             last_update.set_align(Align::Center, 0, 175);
             let text = CString::new("").unwrap();
-            last_update.set_text(text.as_c_str()).unwrap();
+            last_update.set_text(text.as_c_str());
             last_update.add_style(Part::Main, Box::leak(font_10_blk_style()));
 
             cities_labels.push(CityLabels {
@@ -278,59 +278,46 @@ impl<'a> HomePane<'a> {
 
             self.cities_labels[i]
                 .title
-                .set_text(CString::new(city_title.as_str()).unwrap().as_c_str())
-                .unwrap();
+                .set_text(CString::new(city_title.as_str()).unwrap().as_c_str());
         }
     }
 
     pub fn set_city_time_date(&mut self, city_number: usize, time: String, date: String) {
         self.cities_labels[city_number]
             .time
-            .set_text(CString::new(time.as_str()).unwrap().as_c_str())
-            .unwrap();
+            .set_text(CString::new(time.as_str()).unwrap().as_c_str());
 
         self.cities_labels[city_number]
             .date
-            .set_text(CString::new(date.as_str()).unwrap().as_c_str())
-            .unwrap();
+            .set_text(CString::new(date.as_str()).unwrap().as_c_str());
     }
 
     pub fn set_city_forecast(&mut self, city_number: usize, city_forecast: CityForecast) {
         // Set city temperature
-        self.cities_labels[city_number]
-            .temp
-            .set_text(
-                CString::new(city_forecast.temp.as_str())
-                    .unwrap()
-                    .as_c_str(),
-            )
-            .unwrap();
+        self.cities_labels[city_number].temp.set_text(
+            CString::new(city_forecast.temp.as_str())
+                .unwrap()
+                .as_c_str(),
+        );
 
         // Set city weather description
-        self.cities_labels[city_number]
-            .weather_descr
-            .set_text(
-                CString::new(city_forecast.weather_descr.as_str())
-                    .unwrap()
-                    .as_c_str(),
-            )
-            .unwrap();
+        self.cities_labels[city_number].weather_descr.set_text(
+            CString::new(city_forecast.weather_descr.as_str())
+                .unwrap()
+                .as_c_str(),
+        );
 
         // Set city feels like
-        self.cities_labels[city_number]
-            .feels_like
-            .set_text(
-                CString::new(city_forecast.feels_like.as_str())
-                    .unwrap()
-                    .as_c_str(),
-            )
-            .unwrap();
+        self.cities_labels[city_number].feels_like.set_text(
+            CString::new(city_forecast.feels_like.as_str())
+                .unwrap()
+                .as_c_str(),
+        );
 
         // Set city UV value and background color
         self.cities_labels[city_number]
             .uv
-            .set_text(CString::new(city_forecast.uv.as_str()).unwrap().as_c_str())
-            .unwrap();
+            .set_text(CString::new(city_forecast.uv.as_str()).unwrap().as_c_str());
 
         let color = get_uv_bg_color(city_forecast.uv.as_str().parse::<u8>().unwrap());
         lvgl_misc::set_label_bg_color(&mut self.cities_labels[city_number].uv, color);
@@ -338,41 +325,31 @@ impl<'a> HomePane<'a> {
         // Set city air quality index and background color
         self.cities_labels[city_number]
             .aqi
-            .set_text(CString::new(city_forecast.aqi.as_str()).unwrap().as_c_str())
-            .unwrap();
+            .set_text(CString::new(city_forecast.aqi.as_str()).unwrap().as_c_str());
 
         let color = get_aqi_bg_color(city_forecast.aqi.as_str().parse::<u16>().unwrap());
         lvgl_misc::set_label_bg_color(&mut self.cities_labels[city_number].aqi, color);
 
         // Set city wind speed
-        self.cities_labels[city_number]
-            .wind_speed
-            .set_text(
-                CString::new(city_forecast.wind_speed.as_str())
-                    .unwrap()
-                    .as_c_str(),
-            )
-            .unwrap();
+        self.cities_labels[city_number].wind_speed.set_text(
+            CString::new(city_forecast.wind_speed.as_str())
+                .unwrap()
+                .as_c_str(),
+        );
 
         // Set city wind gust
-        self.cities_labels[city_number]
-            .wind_gust
-            .set_text(
-                CString::new(city_forecast.wind_gust.as_str())
-                    .unwrap()
-                    .as_c_str(),
-            )
-            .unwrap();
+        self.cities_labels[city_number].wind_gust.set_text(
+            CString::new(city_forecast.wind_gust.as_str())
+                .unwrap()
+                .as_c_str(),
+        );
 
         // Set city wind direction
-        self.cities_labels[city_number]
-            .wind_dir
-            .set_text(
-                CString::new(city_forecast.wind_dir.as_str())
-                    .unwrap()
-                    .as_c_str(),
-            )
-            .unwrap();
+        self.cities_labels[city_number].wind_dir.set_text(
+            CString::new(city_forecast.wind_dir.as_str())
+                .unwrap()
+                .as_c_str(),
+        );
 
         // Set city day 1 weekday title
         self.cities_labels[city_number]
@@ -381,18 +358,14 @@ impl<'a> HomePane<'a> {
                 CString::new(city_forecast.weekday_forecast_day_1.as_str())
                     .unwrap()
                     .as_c_str(),
-            )
-            .unwrap();
+            );
 
         // Set city day 1 forecast
-        self.cities_labels[city_number]
-            .forecast_day_1
-            .set_text(
-                CString::new(city_forecast.forecast_day_1.as_str())
-                    .unwrap()
-                    .as_c_str(),
-            )
-            .unwrap();
+        self.cities_labels[city_number].forecast_day_1.set_text(
+            CString::new(city_forecast.forecast_day_1.as_str())
+                .unwrap()
+                .as_c_str(),
+        );
 
         // Set city day 2 weekday title
         self.cities_labels[city_number]
@@ -401,18 +374,14 @@ impl<'a> HomePane<'a> {
                 CString::new(city_forecast.weekday_forecast_day_2.as_str())
                     .unwrap()
                     .as_c_str(),
-            )
-            .unwrap();
+            );
 
         // Set city day 2 forecast
-        self.cities_labels[city_number]
-            .forecast_day_2
-            .set_text(
-                CString::new(city_forecast.forecast_day_2.as_str())
-                    .unwrap()
-                    .as_c_str(),
-            )
-            .unwrap();
+        self.cities_labels[city_number].forecast_day_2.set_text(
+            CString::new(city_forecast.forecast_day_2.as_str())
+                .unwrap()
+                .as_c_str(),
+        );
 
         // Set city day 3 weekday title
         self.cities_labels[city_number]
@@ -421,28 +390,21 @@ impl<'a> HomePane<'a> {
                 CString::new(city_forecast.weekday_forecast_day_3.as_str())
                     .unwrap()
                     .as_c_str(),
-            )
-            .unwrap();
+            );
 
         // Set city day 3 forecast
-        self.cities_labels[city_number]
-            .forecast_day_3
-            .set_text(
-                CString::new(city_forecast.forecast_day_3.as_str())
-                    .unwrap()
-                    .as_c_str(),
-            )
-            .unwrap();
+        self.cities_labels[city_number].forecast_day_3.set_text(
+            CString::new(city_forecast.forecast_day_3.as_str())
+                .unwrap()
+                .as_c_str(),
+        );
 
         // Set city last update
-        self.cities_labels[city_number]
-            .last_update
-            .set_text(
-                CString::new(city_forecast.last_update.as_str())
-                    .unwrap()
-                    .as_c_str(),
-            )
-            .unwrap();
+        self.cities_labels[city_number].last_update.set_text(
+            CString::new(city_forecast.last_update.as_str())
+                .unwrap()
+                .as_c_str(),
+        );
     }
 }
 

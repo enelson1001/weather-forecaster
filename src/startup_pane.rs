@@ -24,9 +24,7 @@ impl<'a> StartupPane<'a> {
         let mut message_label = Label::create(&mut pane).unwrap();
         message_label.add_style(Part::Main, Box::leak(message_label_style()));
         message_label.set_align(Align::Center, 0, 0);
-        message_label
-            .set_text(CString::new("").unwrap().as_c_str())
-            .unwrap();
+        message_label.set_text(CString::new("").unwrap().as_c_str());
 
         Self {
             pane,
@@ -36,8 +34,7 @@ impl<'a> StartupPane<'a> {
 
     pub fn set_message(&mut self, msg: String) {
         self.message_label
-            .set_text(CString::new(msg.as_str()).unwrap().as_c_str())
-            .unwrap();
+            .set_text(CString::new(msg.as_str()).unwrap().as_c_str());
     }
 
     pub fn show(&mut self) {

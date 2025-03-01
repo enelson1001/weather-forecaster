@@ -44,9 +44,10 @@ Increased the main stack size
 CONFIG_ESP_MAIN_TASK_STACK_SIZE=16000
 ```
 
-Set the FreeRTOS kernel tick frequency to 1000 Hz
+Added to get mbedtls to validate
 ```
-CONFIG_FREERTOS_HZ=1000
+# Required otherwise esp-x509-crt-bundle: fails to validate
+CONFIG_MBEDTLS_DEFAULT_MEM_ALLOC=y
 ```
 
 The added the following to use PSRAM.
@@ -62,15 +63,16 @@ CONFIG_SPIRAM_RODATA=y
 ```
 
 ## Cargo.toml project file
-I added the following to the "dependencies" section.
+I changed the following to the "dependencies" section.
 ```
+[dependencies]
+# Logging
 log = { version = "0.4", default-features = false }
 
-esp-idf-svc = { version = "0.49.1", default-features = false }
+# ESP specifics
+esp-idf-svc = { version = "0.51", features = ["critical-section", "embassy-time-driver", "embassy-sync", "alloc"] }
 
-cstr_core = "0.2.1"
-embedded-graphics-core = "0.4.0"
-
+# LVGL
 lvgl = { version = "0.6.2", default-features = false, features = [
     "embedded_graphics",
     "unsafe_no_autoinit",
@@ -80,18 +82,26 @@ lvgl = { version = "0.6.2", default-features = false, features = [
 
 lvgl-sys = { version = "0.6.2" }
 
+# Hardware IO Abstraction Layer
 embedded-hal = { version = "1.0.0" }
 embedded-svc = "0.28"
+embedded-sdmmc = "0.7.0"
+embedded-graphics-core = "0.4.0"
 
+# Error
 anyhow = "1.0"
+
+# Serde
 serde = { version = "1.0.195", features = ["derive"] }
 serde_json = "1.0"
 
+# Date and Time
 chrono = "0.4.31"
 chrono-tz = { version = "0.6.2", features = [ "filter-by-regex" ] }
 
-embedded-sdmmc = "0.7.0"
-heapless = "0.8.0"
+
+# C String
+cstr_core = "0.2.1"
 
 ```
 
@@ -111,22 +121,17 @@ target = "xtensa-esp32s3-espidf"
 
 [target.xtensa-esp32s3-espidf]
 linker = "ldproxy"
-# runner = "espflash --monitor" # Select this runner for espflash v1.x.x
-runner = "espflash flash --monitor" # Select this runner for espflash v2.x.x
-rustflags = [
-    # Extending time_t for ESP IDF 5: https://github.com/esp-rs/rust/issues/110
-    "--cfg",
-    "espidf_time64",
-]
+runner = "espflash flash --monitor"
+rustflags = [ "--cfg",  "espidf_time64",]
 
 [unstable]
 build-std = ["std", "panic_abort"]
 
 [env]
 MCU="esp32s3"
+
 # Note: this variable is not used by the pio builder (`cargo build --features pio`)
-#ESP_IDF_VERSION = "v5.1.2"
-ESP_IDF_VERSION = "v5.2.2"
+ESP_IDF_VERSION = "v5.2.3"
 
 # The directory that has the lvgl config files - lv_conf.h, lv_drv_conf.h
 DEP_LV_CONFIG_PATH = { relative = true, value = "lvgl-configs" }
@@ -143,17 +148,21 @@ LVGL_FONTS_DIR = {relative = true, value = "custom-fonts"}
 
 # Filter timezones so only US get installed
 CHRONO_TZ_TIMEZONE_FILTER="(US/.*)"
+
+# Required for lvgl to build otherwise you will get string.h not found.
+# Verfiy path and toolchain version being used on your PC (esp-14.2.0_20240906)
+TARGET_C_INCLUDE_PATH = "/home/ed/.rustup/toolchains/esp/xtensa-esp-elf/esp-14.2.0_20240906/xtensa-esp-elf/xtensa-esp-elf/include"
 ```
 
 ## lv-binding-rust fork
-I updated my fork of lv-binding-rust to include PR153 ie the changes recommended by madwizard-thomas.
+I updated my fork of lv-binding-rust to include PR153 ie the changes recommended by madwizard-thomas and merged with Master commit d83b374.
 
 ## Flashing the ESP32S3 device
 I used the following command to flash the ESP32S3 device.
 ```
 $ cargo espflash flash --partition-table=partition-table/partitions.csv --monitor
 ```
-The application used 67.02% of the flash as shown in the bootup message: ```App/part. size:    2,108,176/3,145,728 bytes, 67.02%```
+The application used 68.33% of the flash as shown in the bootup message: ```App/part. size:    2,149,328/3,145,728 bytes, 68.33%```
 
 ## My observations
 1. I use button matrix for the navigation buttons and it is used by the virtual lvgl keyboard.  The virtual keyboard response to a clicked key seems slow and I could not find a way to improve this.
@@ -189,3 +198,7 @@ https://github.com/user-attachments/assets/6d375cd7-2de2-4e6f-a32f-bb5f4e7c7c11
 # Versions
 ### v1.0 :
 - initial release
+
+## Change History
+March 01, 2025 - Use latest lv_binding_rust commit d83b374, use https instead of http (seems more reliable), use esp-idf-svc v0.51,
+use https instead of http, check if wifi is up before doing http request and try multiple times to reconnect, improve wifi error handling

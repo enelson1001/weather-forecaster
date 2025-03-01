@@ -37,6 +37,7 @@ impl<'a> NavigationPane<'a> {
         btn_matrix.set_size(400, 40);
         btn_matrix.set_align(Align::TopLeft, 10, 6);
         btn_matrix.add_style(Part::Main, Box::leak(btn_matrix_style()));
+        btn_matrix.add_style(Part::Items, Box::leak(btn_style()));
         btnmatrix_set_map(&mut btn_matrix, btnmatrix_vec);
         btnmatrix_set_btn_ctrl_all(&mut btn_matrix);
         btnmatrix_clear_btn_ctrl(&mut btn_matrix, 1);
@@ -49,17 +50,13 @@ impl<'a> NavigationPane<'a> {
         app_title.add_style(Part::Main, Box::leak(app_title_style()));
         app_title.set_width(320);
         app_title.set_align(Align::TopLeft, 420, 4);
-        app_title
-            .set_text(CString::new("Weather Forecaster").unwrap().as_c_str())
-            .unwrap();
+        app_title.set_text(CString::new("Weather Forecaster").unwrap().as_c_str());
 
         let mut app_source = Label::create(&mut pane).unwrap();
         app_source.add_style(Part::Main, Box::leak(app_source_style()));
         app_source.set_width(320);
         app_source.set_align(Align::TopLeft, 420, 32);
-        app_source
-            .set_text(CString::new("uses weatherapi.com").unwrap().as_c_str())
-            .unwrap();
+        app_source.set_text(CString::new("uses weatherapi.com").unwrap().as_c_str());
 
         Self {
             pane,
@@ -112,12 +109,19 @@ fn navigation_pane_style() -> Box<Style> {
 fn btn_matrix_style() -> Box<Style> {
     let mut style = Style::default();
     style.set_border_width(0);
-    style.set_shadow_width(0);
     style.set_bg_opa(Opacity::OPA_TRANSP);
     style.set_pad_top(2);
     style.set_pad_bottom(2);
     style.set_pad_left(2);
     style.set_pad_right(2);
+
+    Box::new(style)
+}
+
+fn btn_style() -> Box<Style> {
+    let mut style = Style::default();
+    style.set_border_width(0);
+    style.set_shadow_width(0);
 
     Box::new(style)
 }

@@ -29,7 +29,7 @@ use std::time::SystemTime;
 use chrono::{DateTime, TimeZone, Utc};
 use chrono_tz::Tz;
 
-use log::{info, warn};
+use log::*;
 
 #[derive(Debug)]
 pub enum ModelRequest {
@@ -278,7 +278,7 @@ impl Model {
 
         // If you are getting broken pipe on terminal after wifi.start then USB power is probably glitching,
         // you can try and reduce wifi TX power with the following unsafe method.  Your best option is to get
-        // a better power source for the dev board; possibly a powered hub.
+        // a better power source for the dev board; possibly a powered hub, 2nd best get a better USB-C to USB-A cable
         //unsafe { esp_idf_svc::sys::esp_wifi_set_max_tx_power(34) };
         info!("Wifi started");
         self.wifi.connect()?;
@@ -287,6 +287,19 @@ impl Model {
         info!("Wifi netif up");
 
         Ok(())
+    }
+
+    fn reconnect_wifi(&mut self) {
+        for i in 1..=3 {
+            if !self.wifi.is_connected().unwrap() {
+                error!("Trying to reconnecting to wifi i={}", i);
+                self.wifi.connect().unwrap();
+                self.wifi.wait_netif_up().unwrap(); // waits up to 15 seconds
+            } else {
+                info!("****** Sucessfully reconnected to Wifi ******");
+                break;
+            }
+        }
     }
 
     fn create_sntp(&self) -> anyhow::Result<Box<EspSntp<'static>>> {
@@ -430,121 +443,125 @@ impl Model {
     }
 
     fn send_cities_forecasts(&mut self) {
+        // Used for debugging
+        let offset = chrono::FixedOffset::west_opt(25200).unwrap(); // Mountain time
+        let current_time = chrono::Utc::now().with_timezone(&offset);
+        let time = format!("{}", current_time.format("%I:%M%P"));
+
+        warn!("==== fetch cities forecasts - {:?} ====", time);
+
         for city in 0..self.cities_info.len() {
-            if let Some(cf) = self.fetch_city_forecast(city) {
-                let fw: ForecastWeather = serde_json::from_str(&cf).unwrap();
-                let temp = format!("{:.0}F", fw.current.temp_f);
-                let weather_descr = fw.current.condition.text;
-                let feels_like = format!("{:.0}F", fw.current.feelslike_f);
-                let uv = format!("{:.0}", fw.current.uv);
-                let aqi = format!("{}", fw.current.air_quality.us_epa_index);
-                let wind_speed = format!("{:.0}", fw.current.wind_mph);
-                let wind_gust = format!("{:.0}", fw.current.gust_mph);
-                let wind_dir = fw.current.wind_dir;
-
-                let mut date_time = Utc
-                    .timestamp_opt(fw.forecast.forecastday[0].date_epoch, 0)
-                    .unwrap();
-                let weekday_forecast_day_1 = format!("{}", date_time.format("%a %d"));
-                let mut day_hi_temp = fw.forecast.forecastday[0].day.maxtemp_f;
-                let mut day_lo_temp = fw.forecast.forecastday[0].day.mintemp_f;
-                let forecast_day_1 = format!("{:.0}F\n{:.0}F", day_hi_temp, day_lo_temp);
-
-                date_time = Utc
-                    .timestamp_opt(fw.forecast.forecastday[1].date_epoch, 0)
-                    .unwrap();
-                let weekday_forecast_day_2 = format!("{}", date_time.format("%a %d"));
-                day_hi_temp = fw.forecast.forecastday[1].day.maxtemp_f;
-                day_lo_temp = fw.forecast.forecastday[1].day.mintemp_f;
-                let forecast_day_2 = format!("{:.0}F\n{:.0}F", day_hi_temp, day_lo_temp);
-
-                date_time = Utc
-                    .timestamp_opt(fw.forecast.forecastday[2].date_epoch, 0)
-                    .unwrap();
-                let weekday_forecast_day_3 = format!("{}", date_time.format("%a %d"));
-                day_hi_temp = fw.forecast.forecastday[2].day.maxtemp_f;
-                day_lo_temp = fw.forecast.forecastday[2].day.mintemp_f;
-                let forecast_day_3 = format!("{:.0}F\n{:.0}F", day_hi_temp, day_lo_temp);
-
-                let dt_last = Utc.timestamp_opt(fw.current.last_updated_epoch, 0).unwrap();
-                let city_tz: Tz = self.cities_info[city].timezone.clone().parse().unwrap();
-                let dt_last_with_tz = dt_last.with_timezone(&city_tz);
-                let dt_last_str = dt_last_with_tz.format("%D %I:%M%P");
-                let last_update = format!("Last update: {}", dt_last_str);
-
-                self.tx
-                    .send(UiRequest::SetCityForecast(
-                        city,
-                        CityForecast {
-                            temp,
-                            weather_descr,
-                            feels_like,
-                            uv,
-                            aqi,
-                            wind_speed,
-                            wind_gust,
-                            wind_dir,
-                            weekday_forecast_day_1,
-                            forecast_day_1,
-                            weekday_forecast_day_2,
-                            forecast_day_2,
-                            weekday_forecast_day_3,
-                            forecast_day_3,
-                            last_update,
-                        },
-                    ))
-                    .unwrap();
-            }
+            self.fetch_city_forecast(city);
         }
     }
 
-    fn fetch_city_forecast(&mut self, city_id: usize) -> Option<String> {
+    fn fetch_city_forecast(&mut self, city_id: usize) {
         let url = format!(
-            "http://api.weatherapi.com/v1/forecast.json?key={}&q={}&days=3&aqi=yes&alerts=no",
+            "https://api.weatherapi.com/v1/forecast.json?key={}&q={}&days=3&aqi=yes&alerts=no",
             self.weather_api_key,
             self.cities_info[city_id].zipcode.clone()
         );
 
-        let httpconnection = EspHttpConnection::new(&HttpConfig {
-            use_global_ca_store: true,
-            crt_bundle_attach: Some(esp_idf_svc::sys::esp_crt_bundle_attach),
-            timeout: Some(Duration::from_secs(10)),
-            ..Default::default()
-        })
-        .unwrap();
+        // Sometimes we get an error on http request (ie bad http status code) so try up to 4 times to get weather forecast data
+        for i in 1..=4 {
+            // Check if wifi is connected, when wifi changes to different wifi channel it sometimes does not reconnect to the router.
+            if !self.wifi.is_connected().unwrap() {
+                self.reconnect_wifi();
+            }
 
-        let mut httpclient = HttpClient::wrap(httpconnection);
+            let httpconnection = EspHttpConnection::new(&HttpConfig {
+                use_global_ca_store: true,
+                crt_bundle_attach: Some(esp_idf_svc::sys::esp_crt_bundle_attach),
+                ..Default::default()
+            })
+            .unwrap();
 
-        match request(&mut httpclient, url.as_str()) {
-            Ok(json_str) => Some(json_str),
+            let mut httpclient = HttpClient::wrap(httpconnection);
 
-            Err(e) => match e {
-                HttpError::HttpGet(e) => {
-                    warn!("http get error = {}", e.0);
-                    None
+            match request(&mut httpclient, url.as_str()) {
+                Ok(json_str) => {
+                    self.send_city_forecast(city_id, &json_str);
+                    info!("City #{} - good, i={}", city_id + 1usize, i);
+                    break;
                 }
 
-                HttpError::HttpSubmit(e) => {
-                    warn!("http submit error = {:?}", e.0);
-                    None
-                }
+                Err(e) => match e {
+                    HttpError::HttpGet(e) => warn!("http get error = {}", e.0),
+                    HttpError::HttpSubmit(e) => warn!("http submit error = {:?}", e.0),
+                    HttpError::HttpRead(e) => warn!("http read error, bytes read = {}", e),
+                    HttpError::Utf8Conversion(e) => warn!("http json error = {}", e),
+                    HttpError::HttpStatus(e) => warn!("http status code error = {}", e),
+                },
+            }
 
-                HttpError::HttpRead(e) => {
-                    warn!("http read error, bytes read = {}", e);
-                    None
-                }
-
-                HttpError::Utf8Conversion(e) => {
-                    warn!("http json error = {}", e);
-                    None
-                }
-
-                HttpError::HttpStatus(e) => {
-                    warn!("http status code error = {}", e);
-                    None
-                }
-            },
+            // Incremental backoff (e.g., wait 10s, then 20s, the 30s), don't do delay on try 4, just give up
+            FreeRtos::delay_ms((i as u32) * 10000);
         }
+    }
+
+    fn send_city_forecast(&mut self, city: usize, json_str: &str) {
+        let fw: ForecastWeather = serde_json::from_str(json_str).unwrap();
+        let temp = format!("{:.0}F", fw.current.temp_f);
+        let weather_descr = fw.current.condition.text;
+        let feels_like = format!("{:.0}F", fw.current.feelslike_f);
+        let uv = format!("{:.0}", fw.current.uv);
+        let aqi = format!("{}", fw.current.air_quality.us_epa_index);
+        let wind_speed = format!("{:.0}", fw.current.wind_mph);
+        let wind_gust = format!("{:.0}", fw.current.gust_mph);
+        let wind_dir = fw.current.wind_dir;
+
+        let mut date_time = Utc
+            .timestamp_opt(fw.forecast.forecastday[0].date_epoch, 0)
+            .unwrap();
+        let weekday_forecast_day_1 = format!("{}", date_time.format("%a %d"));
+        let mut day_hi_temp = fw.forecast.forecastday[0].day.maxtemp_f;
+        let mut day_lo_temp = fw.forecast.forecastday[0].day.mintemp_f;
+        let forecast_day_1 = format!("{:.0}F\n{:.0}F", day_hi_temp, day_lo_temp);
+
+        date_time = Utc
+            .timestamp_opt(fw.forecast.forecastday[1].date_epoch, 0)
+            .unwrap();
+        let weekday_forecast_day_2 = format!("{}", date_time.format("%a %d"));
+        day_hi_temp = fw.forecast.forecastday[1].day.maxtemp_f;
+        day_lo_temp = fw.forecast.forecastday[1].day.mintemp_f;
+        let forecast_day_2 = format!("{:.0}F\n{:.0}F", day_hi_temp, day_lo_temp);
+
+        date_time = Utc
+            .timestamp_opt(fw.forecast.forecastday[2].date_epoch, 0)
+            .unwrap();
+        let weekday_forecast_day_3 = format!("{}", date_time.format("%a %d"));
+        day_hi_temp = fw.forecast.forecastday[2].day.maxtemp_f;
+        day_lo_temp = fw.forecast.forecastday[2].day.mintemp_f;
+        let forecast_day_3 = format!("{:.0}F\n{:.0}F", day_hi_temp, day_lo_temp);
+
+        let dt_last = Utc.timestamp_opt(fw.current.last_updated_epoch, 0).unwrap();
+        let city_tz: Tz = self.cities_info[city].timezone.clone().parse().unwrap();
+        let dt_last_with_tz = dt_last.with_timezone(&city_tz);
+        let dt_last_str = dt_last_with_tz.format("%D %I:%M%P");
+        let last_update = format!("Last update: {}", dt_last_str);
+
+        self.tx
+            .send(UiRequest::SetCityForecast(
+                city,
+                CityForecast {
+                    temp,
+                    weather_descr,
+                    feels_like,
+                    uv,
+                    aqi,
+                    wind_speed,
+                    wind_gust,
+                    wind_dir,
+                    weekday_forecast_day_1,
+                    forecast_day_1,
+                    weekday_forecast_day_2,
+                    forecast_day_2,
+                    weekday_forecast_day_3,
+                    forecast_day_3,
+                    last_update,
+                },
+            ))
+            .unwrap();
     }
 }
 

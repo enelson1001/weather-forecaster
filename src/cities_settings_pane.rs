@@ -51,28 +51,28 @@ impl<'a> CitiesSettingsPane<'a> {
         label.set_align(Align::TopLeft, 60, 10);
         label.add_style(Part::Main, Box::leak(font_12_color_white_style()));
         let mut text = CString::new("Name").unwrap();
-        label.set_text(text.as_c_str()).unwrap();
+        label.set_text(text.as_c_str());
 
         // State title
         label = Label::create(&mut pane).unwrap();
         label.set_align(Align::TopLeft, 250, 10);
         label.add_style(Part::Main, Box::leak(font_12_color_white_style()));
         text = CString::new("State").unwrap();
-        label.set_text(text.as_c_str()).unwrap();
+        label.set_text(text.as_c_str());
 
         // Zipcode title
         label = Label::create(&mut pane).unwrap();
         label.set_align(Align::TopLeft, 350, 10);
         label.add_style(Part::Main, Box::leak(font_12_color_white_style()));
         text = CString::new("Zipcode").unwrap();
-        label.set_text(text.as_c_str()).unwrap();
+        label.set_text(text.as_c_str());
 
         // Timezone title
         label = Label::create(&mut pane).unwrap();
         label.set_align(Align::TopLeft, 470, 10);
         label.add_style(Part::Main, Box::leak(font_12_color_white_style()));
         text = CString::new("Timezone").unwrap();
-        label.set_text(text.as_c_str()).unwrap();
+        label.set_text(text.as_c_str());
 
         const ROW_SPACING: i32 = 40;
 
@@ -83,11 +83,11 @@ impl<'a> CitiesSettingsPane<'a> {
             label.add_style(Part::Main, Box::leak(font_12_color_yellow_style()));
             let row_title = format!("City {}:", i + 1);
             text = CString::new(row_title.as_str()).unwrap();
-            label.set_text(text.as_c_str()).unwrap();
+            label.set_text(text.as_c_str());
 
             // City name text area
             let mut city_name = Textarea::create(&mut pane).unwrap();
-            let _ = city_name.set_one_line(true);
+            city_name.set_one_line(true);
             city_name.set_width(160);
             city_name.add_style(Part::Main, Box::leak(text_area_style()));
             city_name.set_align(Align::TopLeft, 60, 30 + (i * ROW_SPACING));
@@ -95,14 +95,14 @@ impl<'a> CitiesSettingsPane<'a> {
             // State dropdown
             let mut state = Dropdown::create(&mut pane).unwrap();
             let state_txt = CString::new(STATES).unwrap();
-            let _ = state.set_options(state_txt.as_c_str());
+            state.set_options(state_txt.as_c_str());
             state.add_style(Part::Main, Box::leak(text_area_style()));
             state.set_width(80);
             state.set_align(Align::TopLeft, 250, 30 + (i * ROW_SPACING));
 
             // Zipcode text area
             let mut zipcode = Textarea::create(&mut pane).unwrap();
-            let _ = zipcode.set_one_line(true);
+            zipcode.set_one_line(true);
             zipcode.add_style(Part::Main, Box::leak(text_area_style()));
             zipcode.set_width(100);
             zipcode.set_align(Align::TopLeft, 350, 30 + (i * ROW_SPACING));
@@ -110,7 +110,7 @@ impl<'a> CitiesSettingsPane<'a> {
             // Timezone dropdown
             let mut timezone = Dropdown::create(&mut pane).unwrap();
             let timezone_txt = CString::new(TIMEZONES).unwrap();
-            let _ = timezone.set_options(timezone_txt.as_c_str());
+            timezone.set_options(timezone_txt.as_c_str());
             timezone.add_style(Part::Main, Box::leak(text_area_style()));
             timezone.set_align(Align::TopLeft, 470, 30 + (i * ROW_SPACING));
 
@@ -128,7 +128,7 @@ impl<'a> CitiesSettingsPane<'a> {
         error_message.set_width(740);
         error_message.set_align(Align::TopLeft, 10, 182);
         text = CString::new("").unwrap();
-        error_message.set_text(text.as_c_str()).unwrap();
+        error_message.set_text(text.as_c_str());
 
         // Edit button
         let mut edit_btn = Btn::create(&mut pane).unwrap();
@@ -138,7 +138,7 @@ impl<'a> CitiesSettingsPane<'a> {
         let mut btn_label = Label::create(&mut edit_btn).unwrap();
         btn_label.set_align(Align::Center, 0, 0);
         text = CString::new("Edit").unwrap();
-        btn_label.set_text(text.as_c_str()).unwrap();
+        btn_label.set_text(text.as_c_str());
 
         // Save button
         let mut save_btn = Btn::create(&mut pane).unwrap();
@@ -148,7 +148,7 @@ impl<'a> CitiesSettingsPane<'a> {
         btn_label = Label::create(&mut save_btn).unwrap();
         btn_label.set_align(Align::Center, 0, 0);
         text = CString::new("Save").unwrap();
-        btn_label.set_text(text.as_c_str()).unwrap();
+        btn_label.set_text(text.as_c_str());
 
         // Exit button
         let mut exit_btn = Btn::create(&mut pane).unwrap();
@@ -158,7 +158,7 @@ impl<'a> CitiesSettingsPane<'a> {
         btn_label = Label::create(&mut exit_btn).unwrap();
         btn_label.set_align(Align::Center, 0, 0);
         text = CString::new("Exit").unwrap();
-        btn_label.set_text(text.as_c_str()).unwrap();
+        btn_label.set_text(text.as_c_str());
 
         // Create keyboard
         let mut keyboard = Keyboard::create(&mut pane).unwrap();
@@ -244,26 +244,20 @@ impl<'a> CitiesSettingsPane<'a> {
 
     fn prepare_cities_settings(&mut self) {
         for i in 0..self.cities_info.len() {
-            self.cities_widgets[i]
-                .city_name
-                .set_text(
-                    CString::new(self.cities_info[i].city_name.as_str())
-                        .unwrap()
-                        .as_c_str(),
-                )
-                .unwrap();
+            self.cities_widgets[i].city_name.set_text(
+                CString::new(self.cities_info[i].city_name.as_str())
+                    .unwrap()
+                    .as_c_str(),
+            );
 
             let p = find_state_position(STATES, self.cities_info[i].state.as_str());
             lvgl_misc::set_dropdown_selected_item(&self.cities_widgets[i].state, p);
 
-            self.cities_widgets[i]
-                .zipcode
-                .set_text(
-                    CString::new(self.cities_info[i].zipcode.as_str())
-                        .unwrap()
-                        .as_c_str(),
-                )
-                .unwrap();
+            self.cities_widgets[i].zipcode.set_text(
+                CString::new(self.cities_info[i].zipcode.as_str())
+                    .unwrap()
+                    .as_c_str(),
+            );
 
             let p = find_timezone_position(TIMEZONES, self.cities_info[i].timezone.as_str());
             lvgl_misc::set_dropdown_selected_item(&self.cities_widgets[i].timezone, p);
@@ -272,14 +266,12 @@ impl<'a> CitiesSettingsPane<'a> {
 
     fn set_error_message(&mut self, msg: String) {
         self.error_message
-            .set_text(CString::new(msg.as_str()).unwrap().as_c_str())
-            .unwrap();
+            .set_text(CString::new(msg.as_str()).unwrap().as_c_str());
     }
 
     fn clear_error_message(&mut self) {
         self.error_message
-            .set_text(CString::new("").unwrap().as_c_str())
-            .unwrap();
+            .set_text(CString::new("").unwrap().as_c_str());
     }
 }
 

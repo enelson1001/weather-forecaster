@@ -37,32 +37,32 @@ impl<'a> WifiSettingsPane<'a> {
         label.set_align(Align::TopLeft, 70, 10);
         label.add_style(Part::Main, Box::leak(font_12_color_white_style()));
         let mut text = CString::new("Wifi Network Name").unwrap();
-        label.set_text(text.as_c_str()).unwrap();
+        label.set_text(text.as_c_str());
 
         // Password title
         label = Label::create(&mut pane).unwrap();
         label.set_align(Align::TopLeft, 260, 10);
         label.add_style(Part::Main, Box::leak(font_12_color_white_style()));
         text = CString::new("Password").unwrap();
-        label.set_text(text.as_c_str()).unwrap();
+        label.set_text(text.as_c_str());
 
         // Row title
         label = Label::create(&mut pane).unwrap();
         label.set_align(Align::TopLeft, 10, 30);
         label.add_style(Part::Main, Box::leak(font_12_color_yellow_style()));
         text = CString::new("Settings").unwrap();
-        label.set_text(text.as_c_str()).unwrap();
+        label.set_text(text.as_c_str());
 
         // SSID text area
         let mut ssid_ta = Textarea::create(&mut pane).unwrap();
-        let _ = ssid_ta.set_one_line(true);
+        ssid_ta.set_one_line(true);
         ssid_ta.set_width(160);
         ssid_ta.add_style(Part::Main, Box::leak(text_area_style()));
         ssid_ta.set_align(Align::TopLeft, 70, 30);
 
         // Password text area
         let mut pswd_ta = Textarea::create(&mut pane).unwrap();
-        let _ = pswd_ta.set_one_line(true);
+        pswd_ta.set_one_line(true);
         pswd_ta.set_width(160);
         pswd_ta.add_style(Part::Main, Box::leak(text_area_style()));
         pswd_ta.set_align(Align::TopLeft, 260, 30);
@@ -73,7 +73,7 @@ impl<'a> WifiSettingsPane<'a> {
         error_message.set_width(740);
         error_message.set_align(Align::TopLeft, 10, 182);
         text = CString::new("").unwrap();
-        error_message.set_text(text.as_c_str()).unwrap();
+        error_message.set_text(text.as_c_str());
 
         // Edit button
         let mut edit_btn = Btn::create(&mut pane).unwrap();
@@ -83,7 +83,7 @@ impl<'a> WifiSettingsPane<'a> {
         let mut btn_label = Label::create(&mut edit_btn).unwrap();
         btn_label.set_align(Align::Center, 0, 0);
         text = CString::new("Edit").unwrap();
-        btn_label.set_text(text.as_c_str()).unwrap();
+        btn_label.set_text(text.as_c_str());
 
         // Save button
         let mut save_btn = Btn::create(&mut pane).unwrap();
@@ -93,7 +93,7 @@ impl<'a> WifiSettingsPane<'a> {
         btn_label = Label::create(&mut save_btn).unwrap();
         btn_label.set_align(Align::Center, 0, 0);
         text = CString::new("Save").unwrap();
-        btn_label.set_text(text.as_c_str()).unwrap();
+        btn_label.set_text(text.as_c_str());
 
         // Exit button
         let mut exit_btn = Btn::create(&mut pane).unwrap();
@@ -103,7 +103,7 @@ impl<'a> WifiSettingsPane<'a> {
         btn_label = Label::create(&mut exit_btn).unwrap();
         btn_label.set_align(Align::Center, 0, 0);
         text = CString::new("Exit").unwrap();
-        btn_label.set_text(text.as_c_str()).unwrap();
+        btn_label.set_text(text.as_c_str());
 
         // Create keyboard
         let mut keyboard = Keyboard::create(&mut pane).unwrap();
@@ -172,12 +172,10 @@ impl<'a> WifiSettingsPane<'a> {
         self.pswd = pswd.clone();
 
         self.ssid_ta
-            .set_text(CString::new(ssid.as_str()).unwrap().as_c_str())
-            .unwrap();
+            .set_text(CString::new(ssid.as_str()).unwrap().as_c_str());
 
         self.pswd_ta
-            .set_text(CString::new(pswd.as_str()).unwrap().as_c_str())
-            .unwrap();
+            .set_text(CString::new(pswd.as_str()).unwrap().as_c_str());
     }
 
     pub fn get_user_wifi_creds_entries(&mut self) -> (String, String) {
@@ -193,24 +191,20 @@ impl<'a> WifiSettingsPane<'a> {
 
     fn reset_wifi_creds_entries(&mut self) {
         self.ssid_ta
-            .set_text(CString::new(self.ssid.as_str()).unwrap().as_c_str())
-            .unwrap();
+            .set_text(CString::new(self.ssid.as_str()).unwrap().as_c_str());
 
         self.pswd_ta
-            .set_text(CString::new(self.pswd.as_str()).unwrap().as_c_str())
-            .unwrap();
+            .set_text(CString::new(self.pswd.as_str()).unwrap().as_c_str());
     }
 
     pub fn set_error_message(&mut self, msg: String) {
         self.error_message
-            .set_text(CString::new(msg.as_str()).unwrap().as_c_str())
-            .unwrap();
+            .set_text(CString::new(msg.as_str()).unwrap().as_c_str());
     }
 
     pub fn clear_error_message(&mut self) {
         self.error_message
-            .set_text(CString::new("").unwrap().as_c_str())
-            .unwrap();
+            .set_text(CString::new("").unwrap().as_c_str());
     }
 }
 
