@@ -13,7 +13,8 @@ build-std = ["std", "panic_abort"]
 MCU="esp32s3"
 
 # Note: this variable is not used by the pio builder (`cargo build --features pio`)
-ESP_IDF_VERSION = "v5.2.3"
+#ESP_IDF_VERSION = "v5.4.2"
+ESP_IDF_VERSION = "v5.5.1"
 
 # The directory that has the lvgl config files - lv_conf.h, lv_drv_conf.h
 DEP_LV_CONFIG_PATH = { relative = true, value = "lvgl-configs" }
@@ -33,4 +34,4 @@ CHRONO_TZ_TIMEZONE_FILTER="(US/.*)"
 
 # Required for lvgl to build otherwise you will get string.h not found.
 # Verfiy path and toolchain version being used on your PC (esp-14.2.0_20240906)
-TARGET_C_INCLUDE_PATH = "/home/ed/.rustup/toolchains/esp/xtensa-esp-elf/esp-14.2.0_20240906/xtensa-esp-elf/xtensa-esp-elf/include"
+TARGET_C_INCLUDE_PATH = "/home/ed/.rustup/toolchains/esp/xtensa-esp-elf/esp-15.2.0_20250920/xtensa-esp-elf/xtensa-esp-elf/include"

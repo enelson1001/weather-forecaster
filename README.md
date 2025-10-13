@@ -29,7 +29,7 @@ To use this custom font, I added ```LVGL_FONTS_DIR = {relative = true, value = "
 ## lvgl-configs folder
 The lvgl-configs folder holds the lv_config.h and lv_drv_conf.h files which are required by lvgl to compile.  Everything in lv_drv_conf.h file is set to 0 as I am not using the lvgl drivers.  The following changes were made to the lv_conf.h file.
 1. Enabled LV_FONT_MONTSERRAT_10, LV_FONT_MONTSERRAT_12, LV_FONT_MONTSERRAT_14, LV_FONT_MONTSERRAT_16, LV_FONT_MONTSERRAT_24, LV_FONT_MONTSERRAT_36 fonts
-2. For debugging I enabled LV_USE_PERF_MONITOR 1 and LV_USE_MEM_MONITOR 1, if memory fragmentation was high (greater than 60%) the I would increase LV_MEM_SIZE.  I also looked at the CPU usage percentage, the typical usage was between 4%-16%
+2. To show memory usage and cpu utilization on display I set #define LV_USE_PERF_MONITOR 1 (line 246) and #define LV_USE_MEM_MONITOR 1 (line 253).
 3. Changed LV_MEM_SIZE to (80U * 1024U)
 
 ## lcd_panel.rs file
@@ -42,6 +42,11 @@ The GT911 touchscreen controller driver.
 Increased the main stack size
 ```
 CONFIG_ESP_MAIN_TASK_STACK_SIZE=16000
+```
+
+Enabled tick frequency to 1000 Hz
+```
+CONFIG_FREERTOS_HZ=1000
 ```
 
 Added to get mbedtls to validate
@@ -62,15 +67,20 @@ CONFIG_SPIRAM_FETCH_INSTRUCTIONS=y
 CONFIG_SPIRAM_RODATA=y
 ```
 
+Set CPU frequency to run at 240Mhz
+```
+CONFIG_ESP_DEFAULT_CPU_FREQ_MHZ_240=y
+```
+
 ## Cargo.toml project file
 I changed the following to the "dependencies" section.
 ```
 [dependencies]
 # Logging
-log = { version = "0.4", default-features = false }
+log = "0.4"
 
 # ESP specifics
-esp-idf-svc = { version = "0.51", features = ["critical-section", "embassy-time-driver", "embassy-sync", "alloc"] }
+esp-idf-svc = "0.51"
 
 # LVGL
 lvgl = { version = "0.6.2", default-features = false, features = [
@@ -85,7 +95,6 @@ lvgl-sys = { version = "0.6.2" }
 # Hardware IO Abstraction Layer
 embedded-hal = { version = "1.0.0" }
 embedded-svc = "0.28"
-embedded-sdmmc = "0.7.0"
 embedded-graphics-core = "0.4.0"
 
 # Error
@@ -108,8 +117,17 @@ cstr_core = "0.2.1"
 I also included patch.crates-io section to patch lvgl and lvgl-sys
 ```
 [patch.crates-io]
-lvgl = { git = "https://github.com/enelson1001/lv_binding_rust"}
-lvgl-sys = { git = "https://github.com/enelson1001/lv_binding_rust"}
+lvgl = { git = "https://github.com/enelson1001/lv_binding_rust" }
+lvgl-sys = { git = "https://github.com/enelson1001/lv_binding_rust" }
+
+# Need to use Master branch if using esp-idf greater than version 5.2 (ie v5.4.2, v5.5.1)otherwise esp_lcd_panel_rgb.h is not included
+esp-idf-sys = { git =  "https://github.com/esp-rs/esp-idf-sys.git"}
+
+# Need to use Master branch if using esp-idf v5.5.1 or else you will get the following 2 errors
+# error[E0422]: cannot find struct, variant or union type `twai_timing_config_t__bindgen_ty_1` in this scope
+# error[E0560]: struct `esp_idf_sys::twai_timing_config_t` has no field named `__bindgen_anon_1`
+esp-idf-hal = { git =  "https://github.com/esp-rs/esp-idf-hal.git"}
+esp-idf-svc = { git =  "https://github.com/esp-rs/esp-idf-svc.git"}
 
 ```
 
@@ -131,7 +149,7 @@ build-std = ["std", "panic_abort"]
 MCU="esp32s3"
 
 # Note: this variable is not used by the pio builder (`cargo build --features pio`)
-ESP_IDF_VERSION = "v5.2.3"
+ESP_IDF_VERSION = "v5.5.1"
 
 # The directory that has the lvgl config files - lv_conf.h, lv_drv_conf.h
 DEP_LV_CONFIG_PATH = { relative = true, value = "lvgl-configs" }
@@ -151,23 +169,32 @@ CHRONO_TZ_TIMEZONE_FILTER="(US/.*)"
 
 # Required for lvgl to build otherwise you will get string.h not found.
 # Verfiy path and toolchain version being used on your PC (esp-14.2.0_20240906)
-TARGET_C_INCLUDE_PATH = "/home/ed/.rustup/toolchains/esp/xtensa-esp-elf/esp-14.2.0_20240906/xtensa-esp-elf/xtensa-esp-elf/include"
+TARGET_C_INCLUDE_PATH = "/home/ed/.rustup/toolchains/esp/xtensa-esp-elf/esp-15.2.0_20250920/xtensa-esp-elf/xtensa-esp-elf/include"
 ```
 
 ## lv-binding-rust fork
-I updated my fork of lv-binding-rust to include PR153 ie the changes recommended by madwizard-thomas and merged with Master commit d83b374.
+I used my fork of lv-binding-rust to build this project
 
 ## Flashing the ESP32S3 device
 I used the following command to flash the ESP32S3 device.
 ```
 $ cargo espflash flash --partition-table=partition-table/partitions.csv --monitor
 ```
-The application used 68.33% of the flash as shown in the bootup message: ```App/part. size:    2,149,328/3,145,728 bytes, 68.33%```
+The application used 71.25% of the flash as shown in the bootup message: ```App/part. size:    2,241,232/3,145,728 bytes, 71.25%```
+
+The board has 8M of flash but I set partition to use 3M for factory.
 
 ## My observations
 1. I use button matrix for the navigation buttons and it is used by the virtual lvgl keyboard.  The virtual keyboard response to a clicked key seems slow and I could not find a way to improve this.
 2. The AQI reading from weatherapi.com seems to be inaccurate as compared to AirNow.
 3. I believe I am really close to maxing out the available RAM on the ESP32S3.
+4. Setting  ```#define LV_DISP_DEF_REFR_PERIOD 10  (line 81) in lv_conf.h ``` increased FPS from 66 to 100.
+5. Setting ```lcd_panel_config = RgbPanelConfigBuilder::new().clk_src_ppl240m(true)``` and ```CONFIG_ESP_DEFAULT_CPU_FREQ_MHZ_240=y``` reduce CPU utilization.
+6. Setting ```lcd_panel_config = RgbPanelConfigBuilder::new().bounce_buffer_size_px(3200)``` to a larger value did not seem to make any difference.  But if you see the display shift you may want to adjust this value.
+7. Also if display shifts then setting ```CONFIG_SPIRAM_XIP_FROM_PSRAM=y CONFIG_LCD_RGB_RESTART_IN_VSYNC=y``` in sdconfig.defaults may help.
+8. Lvgl memory monitor displayed 60.7kB used (76%), 2% frag. If memory fragmentation was high (greater than 60%) the I would increase LV_MEM_SIZE. 
+9. Lvgl cpu utilization displayed 100 FPS, 2-12% CPU
+
 
 ## The case
 I purchased the case from vendor on Etsy - The3dPrintedNerd.  https://www.etsy.com/listing/1498992104/esp-32-7-case-with-stand-perfect-for
@@ -180,6 +207,8 @@ I liked that the case can be either wall-mounted or includes bracket to allow it
 https://github.com/user-attachments/assets/6d375cd7-2de2-4e6f-a32f-bb5f4e7c7c11
 
 ## The Home pane
+This is an old picture.  The CPU was not running at 240MHz and the #define LV_DISP_DEF_REFR_PERIOD was set to 30 so that is why FPS is 33 and CPU utilization is 14%
+
 ![esp32s3-home](photos/home.jpg)
 
 ## The Wifi Settings pane
@@ -200,5 +229,17 @@ https://github.com/user-attachments/assets/6d375cd7-2de2-4e6f-a32f-bb5f4e7c7c11
 - initial release
 
 ## Change History
-March 01, 2025 - Use latest lv_binding_rust commit d83b374, use https instead of http (seems more reliable), use esp-idf-svc v0.51,
-use https instead of http, check if wifi is up before doing http request and try multiple times to reconnect, improve wifi error handling
+Oct 13, 2025 
+- Update lcd_panel.rs to use builder for easier user implementation for different LCD displays
+- Used esp-idf-svc SdCardDriver and FatFS for FileStore instead of embedded-sdmmc = "0.7.0"
+- Tested with the following versions
+    - Rust: rustc 1.90.0 (1159e78c4 2025-09-14)
+    - espup: espup 0.16.0
+    - esp-idf: v5.42 or v5.5.1
+
+March 01, 2025 
+- Use latest lv_binding_rust commit d83b374, use https instead of http (seems more reliable)
+- use esp-idf-svc v0.51,
+- use https instead of http
+- check if wifi is up before doing http request and try multiple times to reconnect
+- improve wifi error handling

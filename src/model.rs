@@ -333,7 +333,7 @@ impl Model {
         );
 
         self.file_store
-            .write_lines_to_file("wifi.txt", lines.as_bytes())
+            .write_lines_to_file("wifi.txt", &lines)
             .unwrap();
     }
 
@@ -369,7 +369,7 @@ impl Model {
 
         // Save to SDCard
         self.file_store
-            .write_lines_to_file("cities.txt", lines.as_bytes())
+            .write_lines_to_file("cities.txt", &lines)
             .unwrap();
     }
 

@@ -1,7 +1,7 @@
 use crate::cities_settings_pane::CitiesSettingsPane;
 use crate::gt911::{TouchState, GT911};
 use crate::home_pane::HomePane;
-use crate::lcd_panel::{LcdPanel, PanelConfig, PanelFlagsConfig, TimingFlagsConfig, TimingsConfig};
+use crate::lcd_panel::{EspLcdRgbPanel, RgbPanelConfigBuilder};
 use crate::model::ModelRequest;
 use crate::model::{CityForecast, CityInfo};
 use crate::navigation_pane::NavigationPane;
@@ -58,7 +58,7 @@ where
     }
 
     pub fn run(self) {
-        info!("---------- Creating UI Thread ----------");
+        info!("Creating UI Thread");
         let _lvgl_thread = thread::Builder::new().stack_size(24 * 1024).spawn(move || {
             const HOR_RES: u32 = 800;
             const VER_RES: u32 = 480;
@@ -67,13 +67,46 @@ where
 
             lvgl::init();
 
-            let mut lcd_panel = LcdPanel::new(
-                &PanelConfig::new(),
-                &PanelFlagsConfig::new(),
-                &TimingsConfig::new(),
-                &TimingFlagsConfig::new(),
-            )
-            .unwrap();
+            info!("Create LCD panel");
+            let lcd_panel_config = RgbPanelConfigBuilder::new()
+                .h_res(800)
+                .v_res(480)
+                .pclk_hz(16_000_000)
+                .hsync_pulse_width(1)
+                .hsync_back_porch(16)
+                .hsync_front_porch(210)
+                .vsync_pulse_width(1)
+                .vsync_back_porch(10)
+                .vsync_front_porch(22)
+                .hsync_idle_low(false)
+                .vsync_idle_low(false)
+                .de_idle_high(false)
+                .pclk_active_neg(true)
+                .pclk_idle_high(false)
+                .clk_src_ppl240m(true) // CONFIG_ESP_DEFAULT_CPU_FREQ_MHZ_240=y must be set in sdkconfig.defaults
+                .data_width(16)
+                .bits_per_pixel(0)
+                .num_fbs(1)
+                .bounce_buffer_size_px(3200)
+                .sram_trans_align(8) // tried 16, 32, 64 but did not make a differnce
+                .dma_burst_size(64)
+                .hsync_gpio_num(39)
+                .vsync_gpio_num(40)
+                .de_gpio_num(41)
+                .pclk_gpio_num(42)
+                .disp_gpio_num(-1)
+                // gpio's for RGB565 data lines - [B3, B4, B5, B6, B7,   G2, G3, G4, G5, G6, G7    R3, R4, R5, R6, R7]
+                //                                [15,  7,  6,  5,  4,    9, 46,  3,  8, 16,  1,   14, 21, 47, 48, 45]
+                .data_gpio_nums(&[15, 7, 6, 5, 4, 9, 46, 3, 8, 16, 1, 14, 21, 47, 48, 45])
+                .disp_active_low(false)
+                .refresh_on_demand(false)
+                .fb_in_psram(true)
+                .double_fb(false)
+                .no_fb(false)
+                .bb_invalidate_cache(false)
+                .build();
+
+            let mut lcd_panel = EspLcdRgbPanel::new(lcd_panel_config).unwrap();
 
             let draw_buffer = DrawBuffer::<{ DRAW_BUFFER_SIZE }>::default();
             let display = Display::register(draw_buffer, HOR_RES, VER_RES, |refresh| {

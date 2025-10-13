@@ -62,6 +62,7 @@ fn main() {
     let pins = peripherals.pins;
 
     // Create file store to read/write text files
+    info!("Create Filestore");
     let file_store = FileStore::init(
         peripherals.spi2,
         pins.gpio12.into(),
@@ -72,6 +73,7 @@ fn main() {
     .unwrap();
 
     // Create I2C0 for GT911
+    info!("Create I2C0");
     let i2c = peripherals.i2c0;
     let sda = pins.gpio19;
     let scl = pins.gpio20;
@@ -79,6 +81,7 @@ fn main() {
     let i2c = I2cDriver::new(i2c, sda, scl, &config).unwrap();
 
     // Create LedcDriver for LCD panel backlight
+    info!("Create Lcd driver");
     let mut ledc_driver = LedcDriver::new(
         peripherals.ledc.channel0,
         LedcTimerDriver::new(
@@ -91,6 +94,7 @@ fn main() {
     .unwrap();
 
     // Create Wifi service
+    info!("Create Wifi");
     let wifi = BlockingWifi::wrap(
         EspWifi::new(peripherals.modem, sys_loop.clone(), Some(nvs)).unwrap(),
         sys_loop.clone(),
@@ -98,6 +102,7 @@ fn main() {
     .unwrap();
 
     // Create GT911 touchscreen driver
+    info!("Create GT911");
     let gt911 = GT911::new(i2c);
     reset_gt911(pins.gpio38.into());
 
@@ -105,7 +110,7 @@ fn main() {
     UserInterface::new(gt911, tx2, rx1).run();
 
     // Create a periodic timer to call LVGL tick. LVGL needs a system tick to know elapsed time for animations and other tasks.
-    //info!("---------- Creating Lvgl Tick Timer ----------");
+    info!("Create Lvgl Tick Timer");
     let timer_service_01 = EspTaskTimerService::new().unwrap();
     let lvgl_tick_timer = timer_service_01
         .timer(move || {
